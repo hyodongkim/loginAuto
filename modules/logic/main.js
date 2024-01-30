@@ -24,6 +24,8 @@ router.post('/logout', async (req,res,next)=>{
     // req.logout();
     req.session.destroy();
     res.redirect("/home");
-})
+});
+
+router.use(require('./upload'));
 
 module.exports= router;
