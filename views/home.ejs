@@ -1,27 +1,24 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>홈</title>
-</head>
-<%- include('headpart.ejs')%>
-<body>
-    홈 페이지
+  </head>
+  <%- include('headpart.ejs')%>
+  <body>
+    홈 페이지 <% if(user){ %> <%=user.id%>님 어서 오세요. %>
+    <form action="/logout" method="post">
+      <button type="submit">로그아웃</button>
+    </form>
 
-    <% if(user){ %>
-        <%=user.id%>님 어서 오세요. %>
-        <form action="/logout" method="post">
-            <button type="submit">로그아웃</button>
-        </form>
-        
     <%} else{ %>
-    
+
     <form action="/login" method="get">
-        <button type="submit">로그인</button>
+      <button type="submit">로그인</button>
     </form>
 
     <% } %>
-</body>
+  </body>
 </html>
