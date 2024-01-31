@@ -1,3 +1,4 @@
 module.exports={
-    user:require('./schema/user')
+    user:require('./schema/user'),
+    board:require('./schema/board')
 };

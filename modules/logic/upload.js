@@ -7,49 +7,84 @@ const images = multer({
     storage:multer.diskStorage({
         destination:(req,file,done)=>{
             let now = new Date();
-            if(!fs.existsSync(`static/images/${now.getFullYear()}/${now.getMonth()+1}/${now.getDate()}`))
-                fs.mkdirSync(`static/images/${now.getFullYear()}/${now.getMonth()+1}/${now.getDate()}`,{recursive:true});
-            done(null,`static/images/${now.getFullYear()}/${now.getMonth()+1}/${now.getDate()}`);
+            if(!fs.existsSync(`static/images/${now.getFullYear()}/${now.getMonth() + 1}/${now.getDate()}`))
+                fs.mkdirSync(`static/images/${now.getFullYear()}/${now.getMonth() + 1}/${now.getDate()}`, {recursive:true});
+            done(null, `static/images/${now.getFullYear()}/${now.getMonth() + 1}/${now.getDate()}`);
         },
         filename:(req,file,done)=>{
-            let name="";
-            let ext = file.originalname.slice(originalname.lastIndexOf('.'));
-            for(let i = 0; i<99999999999; i+=1){
-            name =
-            btoa(`${file.originalname}+${i}+${process.env.COOKIE_SECRET}`+ext);
-            if(!fs.existsSync(name)) break;
+            let name = "";
+            let ext = file.originalname.slice(
+                file.originalname.lastIndexOf('.'));
+            name = 
+                btoa(`${file.originalname}+${process.env.COOKIE_SECRET}+${new Date().toJSON()}`) + ext;
+            done(null, name);
         }
-        done(null,name);
-    }   
     })
-    
 });
+
 const videos = multer({
     storage:multer.diskStorage({
         destination:(req,file,done)=>{
             let now = new Date();
-            if(!fs.existsSync(`static/images/${now.getFullYear()}/${now.getMonth()+1}/${now.getDate()}`))
-                fs.mkdirSync(`static/images/${now.getFullYear()}/${now.getMonth()+1}/${now.getDate()}`,{recursive:true});
-            done(null,`static/images/${now.getFullYear()}/${now.getMonth()+1}/${now.getDate()}`);
+            if(!fs.existsSync(`static/videos/${now.getFullYear()}/${now.getMonth() + 1}/${now.getDate()}`))
+                fs.mkdirSync(`static/videos/${now.getFullYear()}/${now.getMonth() + 1}/${now.getDate()}`, {recursive:true});
+            done(null, `static/videos/${now.getFullYear()}/${now.getMonth() + 1}/${now.getDate()}`);
         },
         filename:(req,file,done)=>{
-            let name="";
-            for(let i = 0; i<99999999999; i+=1){
-                let ext = file.originalname.slice(originalname.lastIndexOf('.'));
-            name =
-            btoa(`${file.originalname}+${i}+${process.env.COOKIE_SECRET}`+ext);
-            if(!fs.existsSync(name)) break;
+            let name = "";
+            let ext = file.originalname.slice(
+                file.originalname.lastIndexOf('.'));
+            name = 
+                btoa(`${file.originalname}+${process.env.COOKIE_SECRET}+${new Date().toJSON()}`) + ext;
+            done(null, name);
         }
-        done(null,name);
-    }
     })
 });
 
-router.post('/images/upload',images.array("images",30),(req,res,next)=>{
-    res.send("/home");
+router.post('/images/upload',require('../role/user'),
+    images.array("images",30),(req,res,next)=>{
+        req.body = JSON.parse(JSON.stringify(req.body));
+        next();
+    }, async (req,res,next)=>{
+    if(req.body.inner === undefined || 
+        req.body.hash === undefined) next(new Error());
+    else{
+        let board = new req.mongo.board();
+        board.body = req.body.inner;
+        board.author = req.user.id;
+        board.hashtags = req.body.hash
+                        .split('#')
+                        .map(hash=>hash.trim())
+                        .filter(hash=>hash.length > 0);
+        board.writedate = new Date();
+        board.type = req.files.length < 1 ? "none" : "images";
+        board.mediapath = req.files
+                        .map(file=>file.path);
+        await board.save();
+        res.redirect("/boards");
+    }
 });
-router.post('/videos/upload',videos.single("video"),(req,res,next)=>{
-    res.send("/home");
+router.post('/videos/upload',require('../role/user'),
+    videos.single("video"),(req,res,next)=>{
+        req.body = JSON.parse(JSON.stringify(req.body));
+        next();
+    },async (req,res,next)=>{
+    if(req.body.inner === undefined || 
+        req.body.hash === undefined) next(new Error());
+    else{
+        let board = new req.mongo.board();
+        board.body = req.body.inner;
+        board.author = req.user.id;
+        board.hashtags = req.body.hash
+                        .split('#')
+                        .map(hash=>hash.trim())
+                        .filter(hash=>hash.length > 0);
+        board.writedate = new Date();
+        board.type = req.file === undefined ? "none" : "videos";
+        board.mediapath = req.file === undefined ? [] : [req.file.path];
+        await board.save();
+        res.redirect("/boards");
+    }
 });
 
 module.exports = router;

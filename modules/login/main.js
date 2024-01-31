@@ -7,6 +7,8 @@ router.use(passport.session());
 
 passport.use('local',require('./local'));
 passport.use('naver',require('./naver'));
+passport.use('kakao',require('./kakao'));
+passport.use('google',require('./google'));
 
 passport.serializeUser((req,data,done)=>{
     done(null, data);

@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+    <%- include('headpart.ejs')%>
+<body>
+    <ul style="list-style:none;">
+        <% for(let board of boards) { %>
+        <li>
+            <a href=<%=`/board/${board._id}`%>>
+            <% if(board.mediapath.length > 0) { %>
+                <img style="height:50px;" src=<%=board.mediapath[0]%>>
+            <% } else { %>
+            <span><%=board.body%></span>
+            <span><%=board.author%></span>
+            <span><%=board.writedate%></span>
+            <% } %>
+        </a>
+        </li>
+        <% } %>
+    </ul>
+    <%-include('formbutton.ejs',{
+        target:'/boardwrite',
+        method:'get',
+        text:'글쓰기'
+    })%>
+</body>
+</html>

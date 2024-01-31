@@ -8,6 +8,7 @@
   </head>
   <%- include('headpart.ejs')%>
   <body>
+    <%- include('navi.ejs')%>
     홈 페이지 <% if(user){ %> <%=user.id%>님 어서 오세요. %>
     <form action="/logout" method="post">
       <button type="submit">로그아웃</button>
