@@ -2,7 +2,6 @@ const mongoose = require('mongoose');
 module.exports = mongoose.Schema({
     "body":{
         "type":String,
-        "required":true
     },
     "author":{
         "type":String
@@ -15,7 +14,7 @@ module.exports = mongoose.Schema({
     },
     "type":{
         "type":String,
-        "enum":["images","video","none"]
+        "enum":["images", "video", "none"]
     },
     "mediapath":{
         "type":[String]

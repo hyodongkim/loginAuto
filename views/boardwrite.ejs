@@ -1,38 +1,34 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-</head>
-<%- include('headpart.ejs')%>
-<style>
-    form:not(form.choose){
-        display:none;
-    }
-</style>
-<script>
-    function toggle(){
-        if(this.innerText ==="이미지")
-        this.innerText="동영상";
-        else this.innerText="이미지";
-        let forms= document.querySelectorAll("form");
-        forms.forEach(form=>form.classList.toggle('choose'));
-    }
-</script>
-<body>
-    <button type="button" onclick="toggle(this)">이미지</button>
-    <form class="choose" action="/videos/upload" method="post" enctype="multipart/form-data">
-        <input type="text" name="inner"><br>
-        <input type="text" name="hash"><br>
-        <input type="file" name="video"><br>
-        <button type="submit">저장</button>
-    </form>
-    <form action="/images/upload" method="post" enctype="multipart/form-data">
-        <input type="text" name="inner"><br>
-        <input type="text" name="hash"><br>
-        <input type="file" name="images" multiple><br>
-        <button type="submit">저장</button>
-    </form>
+<html>
+    <%-include('headpart.ejs')%>
+    <style>
+        form:not(.choose){display:none;}
+    </style>
+    <script>
+        function toggle(target){
+            if(target.innerText === "이미지")
+                target.innerText = "동영상";
+            else
+                target.innerText = "이미지";
+            let forms = document.querySelectorAll("form");
+            forms.forEach(form=>form.classList.toggle('choose'));
+        }
+    </script>
+    <body>
+        <button type="button" onclick="toggle(this)">동영상</button>
+        <form class="choose" action="/videos/upload" method="post" 
+        enctype="multipart/form-data">
+            <input type="text" name="inner"><br>
+            <input type="text" name="hash"><br>
+            <input type="file" name="video"><br>
+            <button type="submit">저장</button>
+        </form>
+        <form action="/images/upload" method="post" 
+        enctype="multipart/form-data">
+            <input type="text" name="inner"><br>
+            <input type="text" name="hash"><br>
+            <input type="file" name="images" multiple><br>
+            <button type="submit">저장</button>
+        </form>
+    </body>
 </html>

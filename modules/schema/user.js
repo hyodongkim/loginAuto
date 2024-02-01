@@ -16,6 +16,5 @@ module.exports = mongoose.Schema({
     "role":{
         "type":String,
         "enum":["user","admin"]
-
     }
 });

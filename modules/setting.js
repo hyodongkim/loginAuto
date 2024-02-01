@@ -1,25 +1,23 @@
 const express = require('express');
 const router = express.Router();
-const session= require('express-session');
+const session = require('express-session');
 const redis = require('redis');
 const connectRedis = require('connect-redis').default;
 const mongoose = require('mongoose');
-const cors= require('cors');
+const cors = require('cors');
 const dotenv = require('dotenv');
 const models = require('./schema');
 const login = require('./login/main');
-const realModels ={};
+const realModels = {};
 dotenv.config({path:'config/.env'});
-const redisClient = redis.createClient({url:process.env.REDIS_URI})
-mongoose.connect(process.env.MONGO_URI,{
+const redisClient = redis.createClient({url:process.env.REDIS_URI});
+mongoose.connect(process.env.MONGO_URI, {
     autoIndex:true,
     maxPoolSize:100,
     minPoolSize:30
 });
 redisClient.connect();
 for(let key in models) realModels[key] = mongoose.model(key, models[key]);
-
-
 router.use(express.json());
 router.use(express.raw());
 router.use(express.text());
@@ -36,26 +34,24 @@ router.use(session({
     },
     store: new connectRedis({
         prefix:"ssid:",
-        ttl:process.env.MAX_AGE,
-        sacneCount:100,
+        ttl:parseInt(process.env.MAX_AGE),
+        scanCount:100,
         client:redisClient
     })
 }));
-
 router.use(cors({
     origin:`https://localhost:${process.env.PORT}`,
     methods:['get','post'],
-    allowedHeaders:['content-Type'],
+    allowedHeaders:['Content-Type'],
     exposedHeaders:['Content-Type'],
-    maxAge:process.env.MAX_AGE
+    maxAge:parseInt(process.env.MAX_AGE)
 }));
-
-router.use('/static', express.static('static',{
+router.use('/static', express.static('static', {
     dotfiles:'ignore',
-    extension:[],
+    extensions:[],
     fallthrough:true,
     immutable:false,
-    maxAge:process.env.MAX_AGE,
+    maxAge:parseInt(process.env.MAX_AGE),
     index:false,
     redirect:false
 }));
@@ -65,4 +61,4 @@ router.use((req,res,next)=>{
 });
 router.use(login);
 
-module.exports =router;
+module.exports = router;

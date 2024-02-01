@@ -1,32 +1,65 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-</head>
-    <%- include('headpart.ejs')%>
-<body>
-    <ul style="list-style:none;">
-        <% for(let board of boards) { %>
-        <li>
-            <a href=<%=`/board/${board._id}`%>>
-            <% if(board.mediapath.length > 0) { %>
-                <img style="height:50px;" src=<%=board.mediapath[0]%>>
-            <% } else { %>
-            <span><%=board.body%></span>
-            <span><%=board.author%></span>
-            <span><%=board.writedate%></span>
+<html>
+    <%-include('headpart.ejs')%>
+    <body>
+        <ul style="list-style:none;">
+            <% for(let board of boards) { %>
+            <li>
+                <a href=<%=`/board/${board._id}?page=${page}`%>>
+                <% if(board.mediapath.length > 0) { %>
+                    <img style="height:50px;" src=<%=board.mediapath[0]%>>
+                <% } else { %>
+                    <span><%=board.body%></span>
+                    <span><%=board.author%></span>
+                    <span><%=dateformat(board.writedate)%></span>
+                <% } %>
+                </a>
+            </li>
             <% } %>
-        </a>
-        </li>
+        </ul>
+        <% if(parseInt(page) >= 1 && parseInt(page) <= parseInt(last)) { %>
+        <ul style="list-style:none;">
+            <% if(page != 1) { %>
+            <li style="display:inline-block;">
+                <a href=<%=`/boards?page=1${keyword === "" ? '' : `&keyword=${keyword}`}${tokens.length < 1 ? '' : `&tokens=${'.'.join(...tokens)}${mediaonly ? `&mediaonly=true` : ''}`}`%>>
+                    <div style="display:inline-block;width:25px;">≪</div>
+                </a>
+            </li>
+            <li style="display:inline-block;">
+                <a href=<%=`/boards?page=${page-1}${keyword === "" ? '' : `&keyword=${keyword}`}${tokens.length < 1 ? '' : `&tokens=${'.'.join(...tokens)}${mediaonly ? `&mediaonly=true` : ''}`}`%>>
+                    <div style="display:inline-block;width:25px;">＜</div>
+                </a>
+            </li>
+            <% } %>
+            <% for(let i = begin; i <= end; i += 1) { %>
+            <li style="display:inline-block;">
+                <a href=<%=`/boards?page=${i}${keyword === "" ? '' : `&keyword=${keyword}`}${tokens.length < 1 ? '' : `&tokens=${'.'.join(...tokens)}${mediaonly ? `&mediaonly=true` : ''}`}`%>>
+                    <div style="display:inline-block;width:25px;"><%=i%></div>
+                </a>
+            </li>
+            <% } %>
+            <% if(page != last) { %>
+            <li style="display:inline-block;">
+                <a href=<%=`/boards?page=${parseInt(page)+1}${keyword === "" ? '' : `&keyword=${keyword}`}${tokens.length < 1 ? '' : `&tokens=${'.'.join(...tokens)}${mediaonly ? `&mediaonly=true` : ''}`}`%>>
+                    <div style="display:inline-block;width:25px;">＞</div>
+                </a>
+            </li>
+            <li style="display:inline-block;">
+                <a href=<%=`/boards?page=${last}${keyword === "" ? '' : `&keyword=${keyword}`}${tokens.length < 1 ? '' : `&tokens=${'.'.join(...tokens)}${mediaonly ? `&mediaonly=true` : ''}`}`%>>
+                    <div style="display:inline-block;width:25px;">≫</div>
+                </a>
+            </li>
+            <% } %>
+        </ul>
         <% } %>
-    </ul>
-    <%-include('formbutton.ejs',{
-        target:'/boardwrite',
-        method:'get',
-        text:'글쓰기'
-    })%>
-</body>
+        <form action="/boards" method="get">
+            <input type="text" name="keyword">
+            <button type="submit">검색</button>
+        </form>
+        <%-include('formbutton.ejs',{
+            target:'/boardwrite',
+            method:'get',
+            text:'글쓰기'
+        })%>
+    </body>
 </html>
