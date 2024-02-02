@@ -2,24 +2,30 @@
 <html>
     <%-include('headpart.ejs')%>
     <body>
+    <%=board.title%>
+    <br>
     <% if(board.type === 'none') { %>
-        <%=board.body%>
+        <%=board.inner%>
     <% } else if(board.type === 'images') { %>
-        <% for(let img of board.mediapath) { %>
+        <% for(let img of board.mediapath.split(splittoken)) { %>
             <img src=<%=`\\${img}`%>>
+            <br>
         <% } %>
+        <br>
+        <%=board.inner%>
     <% } else { %>
-        <video src=<%=`\\${board.mediapath[0]}`%>>
+        <video src=<%=`\\${board.mediapath}`%>>
+        <br>
+        <%=board.inner%>
     <% } %>
-    <ul style="list-style: none; padding:0;">
-        <% for(let tag of board.hashtags) { %>
-            <a href=<%=`/boards?tokens=${tag}`%>>
-                <li style="display: inline-block; margin-right:10px;">
-                    <%=`#${tag}`%>
-                </li>
-            </a>
-        <% } %>
-    </ul>
+    <br>
+    <%-replys%>
+    <br>
+    <form action=<%=`/board/${id}`%> method="post">
+        <input type="text" name="reply">
+        <button type="submit">등록</button>
+    </form>
+    <br>
     <a href=<%=`/boards?page=${page}`%>>목록</a>
     </body>
 </html>

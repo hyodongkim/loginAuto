@@ -14,35 +14,15 @@ router.get('/signup', require('../role/guest'),(req,res,next)=>{
 });
 
 router.get('/boards', require('../role/any'), async (req,res,next)=>{
-    keyword = req.query.keyword ? req.query.keyword : "";
-    // a.b.c
-    tokens = req.query.tokens ? 
-            req.query.tokens.split(".")
-            .map(data=>data.trim()) :
-            [];
-    mediaonly = req.query.mediaonly ? true : false;
-    page = req.query.page ? req.query.page : 1;
-    let boards = await req.mongo.board.find(
-            tokens.length < 1 && keyword === "" ?
-            {
-                "mediapath":{
-                    $not:{ $size: mediaonly ? 0 : 99 }
-                }
-            } : {
-                "mediapath":{
-                    $not:{ $size: mediaonly ? 0 : 99 }
-                },
-                "hashtags":
-                {
-                    $elemMatch:
-                    tokens.length > 0 ? 
-                    { $in: [...tokens] } :
-                    { $regex: new RegExp(`.*${keyword}.*`, 'i') }
-                }
-            })
-            .sort({_id:-1})
-            .skip((page - 1) * parseInt(process.env.PAGE_LIMIT))
-            .limit(parseInt(process.env.PAGE_LIMIT));
+    page = req.query.page || 1;
+    keyword = req.query.keyword || "";
+    let boards = await req.mongo.board.find({
+        title:{
+            $regex:new RegExp(`.*${keyword}.*`,'i')
+        },
+        inner:{
+            $regex:new RegExp(`.*${keyword}.*`,'i')
+    }}).sort({_id:-1}).skip((page - 1) * parseInt(process.env.PAGE_LIMIT)).limit(parseInt(process.env.PAGE_LIMIT));
     let now = new Date();
     now.setHours(now.getHours() - 24);
     let dateformat = date=>{
@@ -56,22 +36,12 @@ router.get('/boards', require('../role/any'), async (req,res,next)=>{
             ':'+
             `${date.getMinutes().toString().padStart(2,'0')}`;
     };
-    let count = await req.mongo.board.countDocuments(
-        tokens.length < 1 && keyword === "" ?
-        {
-            "mediapath":{
-                $not:{ $size:mediaonly ? 0 : 99 }
-            }
-        } : {
-        "mediapath":{
-            $not:{ $size:mediaonly ? 0 : 99 }
+    let count = await req.mongo.board.countDocuments({
+        title:{
+            $regex:new RegExp(`.*${keyword}.*`,'i')
         },
-        "hashtags":
-        {
-            $elemMatch:
-            tokens.length > 0 ? 
-            { $in: [...tokens] } :
-            { $regex: new RegExp(`.*${keyword}.*`, 'i') }
+        inner:{
+            $regex:new RegExp(`.*${keyword}.*`,'i')
         }
     });
     let pageCount = Math.ceil(count / parseInt(process.env.PAGE_LIMIT));
@@ -90,30 +60,66 @@ router.get('/boards', require('../role/any'), async (req,res,next)=>{
         end:end,
         last:pageCount,
         dateformat:dateformat,
-        tokens:tokens,
-        keyword:keyword,
-        mediaonly:mediaonly
+        splittoken:process.env.MEDIAPATH_SPLIT_TOKEN
     };
     res.render("boards");
 });
 router.get('/board/:id', require('../role/any'), async (req,res,next)=>{
     let board = await req.mongo.board.findOne({_id:req.params.id});
-    res.render("board", {board:board, page:req.query.page});
+    let replys = await req.mongo.reply.find({board:board._id});
+    // let replys = await req.mongo.reply.find({board:board._id, ownreply:undefined})
+    //                         .sort({_id:-1})
+    //                         .skip((page - 1) * parseInt(process.env.PAGE_LIMIT))
+    //                         .limit(parseInt(process.env.PAGE_LIMIT));
+
+    function replysfn(inner_replys, lpad){
+        let result = "";
+        for(let reply of inner_replys){
+            result 
+            += `<details style="padding-left:${lpad}px">
+                    <summary>
+                        <span>${reply.author}</span>
+                        <span>${reply.inner}</span>
+                    </summary>
+                    ${replysfn(replys.filter(r=>reply._id.equals(r.ownreply)), lpad)}
+                    <form action="${`/board/${req.params.id}`}" method="post">
+                        <input type="text" hidden name="own" value="${reply._id}">
+                        <input type="text" name="reply">
+                        <button type="submit">등록</button>
+                    </form>
+                </details>`;
+        }
+        return result;
+    }
+
+
+    res.render("board", {
+        board:board, 
+        page:req.query.page,
+        id:req.params.id, 
+        replys:replysfn(replys.filter(r=>!r.ownreply), 20),
+        splittoken:process.env.MEDIAPATH_SPLIT_TOKEN
+    });
 });
 
 router.get('/boardwrite', require('../role/user'),(req,res,next)=>{
     res.render("boardwrite");
 });
 
+router.get('/boarddeleteTest', require('../role/any'), async (req,res,next)=>{
+    await req.mongo.board.deleteMany({});
+    res.redirect("/home");
+});
+
 router.get('/boardwriteTest', require('../role/user'), async (req,res,next)=>{
     for(let i = 0; i < 300; i += 1){
         let board = new req.mongo.board();
-        board.body = "";
+        board.inner = "";
         board.author = req.user.id;
-        board.hashtags = [];
+        board.title = "제목";
         board.writedate = new Date();
         board.type = "none";
-        board.mediapath = [];
+        board.mediapath = "";
         await board.save();
     }
     res.redirect("/home");

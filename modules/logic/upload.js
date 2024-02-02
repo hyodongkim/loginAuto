@@ -16,7 +16,8 @@ const images = multer({
             let ext = file.originalname.slice(
                 file.originalname.lastIndexOf('.'));
             name = 
-                btoa(`${file.originalname}+${process.env.COOKIE_SECRET}+${new Date().toJSON()}`) + ext;
+                btoa(`${file.originalname}+${process.env.COOKIE_SECRET}+${new Date().toJSON()}`).slice(0, 50) + ext;
+            console.log(name);
             done(null, name);
         }
     })
@@ -35,7 +36,7 @@ const videos = multer({
             let ext = file.originalname.slice(
                 file.originalname.lastIndexOf('.'));
             name = 
-                btoa(`${file.originalname}+${process.env.COOKIE_SECRET}+${new Date().toJSON()}`) + ext;
+                btoa(`${file.originalname}+${process.env.COOKIE_SECRET}+${new Date().toJSON()}`).slice(0, 50) + ext;
             done(null, name);
         }
     })
@@ -47,19 +48,16 @@ router.post('/images/upload',require('../role/user'),
         next();
     }, async (req,res,next)=>{
     if(req.body.inner === undefined || 
-        req.body.hash === undefined) next(new Error());
+        req.body.title === undefined) next(new Error());
     else{
         let board = new req.mongo.board();
-        board.body = req.body.inner;
+        board.inner = req.body.inner;
         board.author = req.user.id;
-        board.hashtags = req.body.hash
-                        .split('#')
-                        .map(hash=>hash.trim())
-                        .filter(hash=>hash.length > 0);
+        board.title = req.body.title;
         board.writedate = new Date();
         board.type = req.files.length < 1 ? "none" : "images";
-        board.mediapath = req.files
-                        .map(file=>file.path);
+        let mediapath = req.files.map(file=>file.path);
+        board.mediapath = mediapath.join(process.env.MEDIAPATH_SPLIT_TOKEN);
         await board.save();
         res.redirect("/boards");
     }
@@ -70,18 +68,15 @@ router.post('/videos/upload',require('../role/user'),
         next();
     },async (req,res,next)=>{
     if(req.body.inner === undefined || 
-        req.body.hash === undefined) next(new Error());
+        req.body.title === undefined) next(new Error());
     else{
         let board = new req.mongo.board();
-        board.body = req.body.inner;
+        board.inner = req.body.inner;
         board.author = req.user.id;
-        board.hashtags = req.body.hash
-                        .split('#')
-                        .map(hash=>hash.trim())
-                        .filter(hash=>hash.length > 0);
+        board.title = req.body.title;
         board.writedate = new Date();
-        board.type = req.file === undefined ? "none" : "videos";
-        board.mediapath = req.file === undefined ? [] : [req.file.path];
+        board.type = req.file != undefined ? "video" : "none";
+        board.mediapath = req.file != undefined ? req.file.path : "";
         await board.save();
         res.redirect("/boards");
     }

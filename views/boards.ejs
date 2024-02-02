@@ -7,10 +7,10 @@
             <li>
                 <a href=<%=`/board/${board._id}?page=${page}`%>>
                 <% if(board.mediapath.length > 0) { %>
-                    <img style="height:50px;" src=<%=board.mediapath[0]%>>
+                    <img style="height:50px;" src=<%=board.mediapath.split(splittoken)[0]%>>
                 <% } else { %>
-                    <span><%=board.body%></span>
                     <span><%=board.author%></span>
+                    <span><%=board.title%></span>
                     <span><%=dateformat(board.writedate)%></span>
                 <% } %>
                 </a>
@@ -21,31 +21,31 @@
         <ul style="list-style:none;">
             <% if(page != 1) { %>
             <li style="display:inline-block;">
-                <a href=<%=`/boards?page=1${keyword === "" ? '' : `&keyword=${keyword}`}${tokens.length < 1 ? '' : `&tokens=${'.'.join(...tokens)}${mediaonly ? `&mediaonly=true` : ''}`}`%>>
+                <a href=<%=`/boards?page=1`%>>
                     <div style="display:inline-block;width:25px;">≪</div>
                 </a>
             </li>
             <li style="display:inline-block;">
-                <a href=<%=`/boards?page=${page-1}${keyword === "" ? '' : `&keyword=${keyword}`}${tokens.length < 1 ? '' : `&tokens=${'.'.join(...tokens)}${mediaonly ? `&mediaonly=true` : ''}`}`%>>
+                <a href=<%=`/boards?page=${page-1}`%>>
                     <div style="display:inline-block;width:25px;">＜</div>
                 </a>
             </li>
             <% } %>
             <% for(let i = begin; i <= end; i += 1) { %>
             <li style="display:inline-block;">
-                <a href=<%=`/boards?page=${i}${keyword === "" ? '' : `&keyword=${keyword}`}${tokens.length < 1 ? '' : `&tokens=${'.'.join(...tokens)}${mediaonly ? `&mediaonly=true` : ''}`}`%>>
+                <a href=<%=`/boards?page=${i}`%>>
                     <div style="display:inline-block;width:25px;"><%=i%></div>
                 </a>
             </li>
             <% } %>
             <% if(page != last) { %>
             <li style="display:inline-block;">
-                <a href=<%=`/boards?page=${parseInt(page)+1}${keyword === "" ? '' : `&keyword=${keyword}`}${tokens.length < 1 ? '' : `&tokens=${'.'.join(...tokens)}${mediaonly ? `&mediaonly=true` : ''}`}`%>>
+                <a href=<%=`/boards?page=${parseInt(page)+1}`%>>
                     <div style="display:inline-block;width:25px;">＞</div>
                 </a>
             </li>
             <li style="display:inline-block;">
-                <a href=<%=`/boards?page=${last}${keyword === "" ? '' : `&keyword=${keyword}`}${tokens.length < 1 ? '' : `&tokens=${'.'.join(...tokens)}${mediaonly ? `&mediaonly=true` : ''}`}`%>>
+                <a href=<%=`/boards?page=${last}`%>>
                     <div style="display:inline-block;width:25px;">≫</div>
                 </a>
             </li>

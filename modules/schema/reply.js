@@ -6,17 +6,13 @@ module.exports = mongoose.Schema({
     "author":{
         "type":String
     },
-    "title":{
-        "type":String
-    },
     "writedate":{
         "type":Date
     },
-    "type":{
-        "type":String,
-        "enum":["images", "video", "none"]
+    "ownreply":{
+        "type":mongoose.Schema.ObjectId
     },
-    "mediapath":{
-        "type":String
+    "board":{
+        "type":mongoose.Schema.ObjectId
     }
 });

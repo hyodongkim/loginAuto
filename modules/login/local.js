@@ -3,10 +3,10 @@ module.exports = new Strategy({
     usernameField:"id",
     passwordField:"pw",
     passReqToCallback:true
-}, async (req,id,pw,done)=>{
+}, async (req, id, pw, done)=>{
     try{
-    let user = await req.mongo.user.findOne({"id":id, "pw":pw});
-    done(null, user || false);
+        let user = await req.mongo.user.findOne({"id":id, "pw":pw});
+        done(null, user || false);
     }
-    catch(e){done(error);}
+    catch(e){ done(e); }
 });

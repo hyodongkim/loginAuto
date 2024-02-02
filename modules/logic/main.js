@@ -27,6 +27,30 @@ router.post('/logout', async (req,res,next)=>{
     res.redirect("/home");
 });
 
+router.post('/board/:id', require('../role/user'), async (req,res,next)=>{
+    let board = await req.mongo.board.findOne({_id:req.params.id});
+
+    let reply = new req.mongo.reply();
+    reply.inner = req.body.reply;
+    reply.author = req.user.id;
+    reply.writedate = new Date();
+    reply.ownreply = req.body.own;
+    reply.board = board._id;
+    await reply.save();
+
+    res.redirect(`/board/${req.params.id}`);
+
+    // let replys = await req.mongo.reply.find({board:board._id});
+
+    // res.render("board", {
+    //     board:board, 
+    //     page:req.query.page,
+    //     id:req.params.id, 
+    //     replys:replys,
+    //     splittoken:process.env.MEDIAPATH_SPLIT_TOKEN
+    // });
+});
+
 router.use(require('./upload'));
 
 module.exports = router;
