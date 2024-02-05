@@ -5,7 +5,7 @@
         <ul style="list-style:none;">
             <% for(let board of boards) { %>
             <li>
-                <a href=<%=`/board/${board._id}?page=${page}`%>>
+                <a href=<%=`/board/${board._id}?page=${page}${keyword ? `&keyword=${keyword}` : ""}`%>>
                 <% if(board.mediapath.length > 0) { %>
                     <img style="height:50px;" src=<%=board.mediapath.split(splittoken)[0]%>>
                 <% } else { %>
@@ -26,26 +26,26 @@
                 </a>
             </li>
             <li style="display:inline-block;">
-                <a href=<%=`/boards?page=${page-1}`%>>
+                <a href=<%=`/boards?page=${page-1}${keyword ? `&keyword=${keyword}` : ""}`%>>
                     <div style="display:inline-block;width:25px;">＜</div>
                 </a>
             </li>
             <% } %>
             <% for(let i = begin; i <= end; i += 1) { %>
             <li style="display:inline-block;">
-                <a href=<%=`/boards?page=${i}`%>>
+                <a href=<%=`/boards?page=${i}${keyword ? `&keyword=${keyword}` : ""}`%>>
                     <div style="display:inline-block;width:25px;"><%=i%></div>
                 </a>
             </li>
             <% } %>
             <% if(page != last) { %>
             <li style="display:inline-block;">
-                <a href=<%=`/boards?page=${parseInt(page)+1}`%>>
+                <a href=<%=`/boards?page=${parseInt(page)+1}${keyword ? `&keyword=${keyword}` : ""}`%>>
                     <div style="display:inline-block;width:25px;">＞</div>
                 </a>
             </li>
             <li style="display:inline-block;">
-                <a href=<%=`/boards?page=${last}`%>>
+                <a href=<%=`/boards?page=${last}${keyword ? `&keyword=${keyword}` : ""}`%>>
                     <div style="display:inline-block;width:25px;">≫</div>
                 </a>
             </li>

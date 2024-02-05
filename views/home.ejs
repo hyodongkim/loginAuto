@@ -2,16 +2,53 @@
 <html>
     <%-include('headpart.ejs')%>
     <body>
+        <script src="https://www.youtube.com/iframe_api"></script>
         <%-include('navi.ejs')%>
         <% if(user){ %>
-            <%=user.id%>님 어서 오세요.
-            <form action="/logout" method="post">
+            <div style="display: inline-block; width:200px;">
+                <%=user.id%>님 어서 오세요.
+            </div>
+            <form action="/logout" method="post" style="display: inline-block;">
                 <button type="submit">로그아웃</button>
             </form>
         <% } else { %>
-            <form action="/login" method="get">
+            <form action="/login" method="get" style="display: inline-block;">
                 <button type="submit">로그인</button>
             </form>
         <% } %>
+
+        <div id="youtube_player" data-begin=<%=startVideo%>>
+            <div id="youtube_realplayer"></div>
+        </div>
+        <script>
+            function youtubeAPI(videoId, targetId = 'youtube_realplayer', bodyId="youtube_player"){
+                let body = document.getElementById(bodyId);
+                body.innerHTML = `<div id="${targetId}"></div>`;
+                new YT.Player(targetId, {
+                    height:360, width:640, videoId:videoId,
+                    playerVars:{
+                        'mute':1,
+                        'controls':0
+                    },
+                    events:{
+                        'onReady':function ready(event){
+                            event.target.playVideo();
+                            event.target.unMuted();
+                        },
+                        'onStateChange':async function state(event){
+                            if(event.data == YT.PlayerState.ENDED){
+                                fetch("/nextAds", {method:"get"})
+                                    .then(r=>r.text())
+                                    .then(r=>{
+                                        youtubeAPI(r);
+                                    })
+                                
+                            }
+                        }
+                    }
+                });
+            }
+            youtubeAPI(document.getElementById("youtube_player").dataset.begin);
+        </script>
     </body>
 </html>

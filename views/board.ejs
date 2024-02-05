@@ -21,11 +21,11 @@
     <br>
     <%-replys%>
     <br>
-    <form action=<%=`/board/${id}`%> method="post">
+    <form action=<%=`/board/${id}?page=${page}${keyword ? `&keyword=${keyword}` : ""}`%> method="post">
         <input type="text" name="reply">
         <button type="submit">등록</button>
     </form>
     <br>
-    <a href=<%=`/boards?page=${page}`%>>목록</a>
+    <a href=<%=`/boards?page=${page}${keyword ? `&keyword=${keyword}` : ""}`%>>목록</a>
     </body>
 </html>
