@@ -33,7 +33,7 @@
                     events:{
                         'onReady':function ready(event){
                             event.target.playVideo();
-                            event.target.unMuted();
+                            event.target.unmuted();
                         },
                         'onStateChange':async function state(event){
                             if(event.data == YT.PlayerState.ENDED){

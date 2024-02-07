@@ -1,6 +1,44 @@
 const express = require('express');
 const router = express.Router();
 
+async function youtubeFetch(
+    target,
+    options = {part:'snippet'}
+){
+    let query = `?key=${process.env.YOUTUBE_API}`;
+    for(let key in options){
+        query += `${key}=${options[key]}`;
+    }
+    return await (await fetch(
+        `https://www.googleapis.com/youtube/v3/${target}${query}`
+    )).json();
+}
+
+router.get('/youtubelist', require('../role/any'),async(req,res,next)=>{
+    let jsons = youtubeFetch("search",{
+        q:req.query.q || "최신가요",
+        part:"snippet",
+        type:"video",
+        location:"37.3400,126.5741",
+        locationRadius:"350km",
+        maxResults:req.query.results || 5,
+        order:req.query.order || "relevance",
+        publishedAfter:`${date.toISOString()}`,
+        relavanceLanguage:"kor",
+        regionCode:'KR',
+        safeSearch:'none',
+        videoDuration:'medium'
+    });
+    let videos =[];
+    for(let item of jsons.items){
+       videos.push(item.id.videos);
+    }
+    // `https://www.googleapis.com/youtube/v3/playlistItems?part=snippet&key=${process.env.YOUTUBE_API}&type=video&location=37.3400,126.5741&locationRadius=350km&maxResults=50&order=relevance&regionCode=KR&safeSearch=none&videoDuration=short`
+    res.locals.videos = "baaNwRAhHBo,baaNwRAhHBo,baaNwRAhHBo";
+    res.render("youtubelist");
+
+});
+
 router.get('/nextAds', require('../role/any'), async (req,res,next)=>{
     let video;
     if(req.session.leftVideos){

@@ -1,0 +1,12 @@
+<!DOCTYPE html>
+<html>
+    <%-include('headpart.ejs')%>
+    <body>
+        <script src="https://www.youtube.com/iframe_api"></script>
+        <script src="static/js/youtube.js"></script>
+
+        <div id="youtubePlayer" data-videos=<%=video%>>
+        </div>
+        <script defer src="static/js/youtubelist.js"></script>
+    </body>
+</html>
